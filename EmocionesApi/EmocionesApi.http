@@ -1,0 +1,6 @@
+@EmocionesApi_HostAddress = http://localhost:5070
+
+GET {{EmocionesApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
