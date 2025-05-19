@@ -82,5 +82,24 @@ namespace EmocionesApi.Controllers
             return Ok(result.Value);
 
         }
+
+        [HttpGet("diarios/recientes")]
+        [Authorize]
+        public IActionResult obtenerEntradasRecientes()
+        {
+
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            var userId = Guid.Parse(identity.FindFirst("id").Value);
+
+            var result = _jwt.ObtenerEntradasRecientes(userId);
+
+            if (result.Result is NotFoundObjectResult)
+            {
+                return NotFound(result.Value);
+            }
+
+            return Ok(result.Value);
+
+        }
     }
 }

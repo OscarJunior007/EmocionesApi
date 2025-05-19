@@ -89,5 +89,32 @@ namespace EmocionesApi.Services
 
             }
         }
+
+        public ActionResult<List<DIarioEntrada>> ObtenerEntradasRecientes(Guid usuarioId)
+        {
+            try
+            {
+                var entradas = _context.DiarioUser
+                                .Where(x => x.UsuarioId == usuarioId)
+                                .OrderByDescending(x => x.FechaHora)
+                                .Take(5)
+                                .ToList();
+
+                if (!entradas.Any())
+                {
+                    return new NotFoundObjectResult(new
+                    {
+                        Success = false,
+                        Message = "No se encontraron entradas para este usuario"
+                    });
+                }
+
+                return entradas;
+            }
+            catch (Exception ex)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }
