@@ -140,7 +140,7 @@ namespace EmocionesApi.Controllers
                     jwt.Issuer,
                     jwt.Audience,
                     claims,
-                    expires: DateTime.Now.AddMinutes(4),
+                    expires: DateTime.Now.AddMinutes(10),
                     signingCredentials:singIn
 
                 );
