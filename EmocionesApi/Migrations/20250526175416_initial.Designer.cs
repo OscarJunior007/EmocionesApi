@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmocionesApi.Migrations
 {
     [DbContext(typeof(AppDbcontext))]
-    [Migration("20250516003123_initial")]
+    [Migration("20250526175416_initial")]
     partial class initial
     {
         /// <inheritdoc />

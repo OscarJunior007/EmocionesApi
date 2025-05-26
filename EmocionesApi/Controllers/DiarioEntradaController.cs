@@ -62,7 +62,68 @@ namespace EmocionesApi.Controllers
             });
         }
 
-        
+        [HttpPut("actualizar/{id}")]
+        [Authorize]
+        public IActionResult UpdateDiarioDescription(Guid id, [FromBody] editEntradaDTO model)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            var rToken = _jwt.ValidarToken(identity);
+
+            if (!rToken.succes) return rToken;
+
+            User usuario = rToken.result;
+
+            var entradaExistente = _context.DiarioUser
+                .FirstOrDefault(e => e.Id == id && e.UsuarioId == usuario.Id);
+
+            if (entradaExistente == null)
+            {
+                return NotFound(new { Message = "Entrada de diario no encontrada" });
+            }
+
+            entradaExistente.Descripcion = model.Descripcion;
+
+            _context.DiarioUser.Update(entradaExistente);
+            _context.SaveChanges();
+
+            return Ok(new
+            {
+                Message = "Descripción actualizada exitosamente",
+                Entrada = new
+                {
+                    entradaExistente.Id,
+                    entradaExistente.Descripcion,
+                    entradaExistente.EstadoAnimo,
+                    entradaExistente.Etiquetas
+                }
+            });
+        }
+
+        [HttpDelete("eliminar/{id}")]
+        [Authorize]
+        public IActionResult EliminarEntrada(Guid id)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            var rToken = _jwt.ValidarToken(identity);
+
+            if (!rToken.succes) return rToken;
+
+            User usuario = rToken.result;
+
+            var entrada = _context.DiarioUser
+                .FirstOrDefault(e => e.Id == id && e.UsuarioId == usuario.Id);
+
+            if (entrada == null)
+            {
+                return NotFound(new { Message = "Entrada no encontrada" });
+            }
+
+            _context.DiarioUser.Remove(entrada);
+            _context.SaveChanges();
+
+            return Ok(new { Message = "Entrada eliminada exitosamente" });
+        }
+
 
         [HttpGet("diarios")]
         [Authorize]
