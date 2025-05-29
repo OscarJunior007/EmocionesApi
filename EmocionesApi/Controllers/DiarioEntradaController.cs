@@ -3,6 +3,7 @@ using EmocionesApi.Models;
 using EmocionesApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace EmocionesApi.Controllers
@@ -24,23 +25,17 @@ namespace EmocionesApi.Controllers
 
         [HttpPost("entrada")]
         [Authorize]
-
-        public IActionResult saveDiario([FromBody] DiarioDTO model)
+        public async Task<IActionResult> saveDiario([FromBody] DiarioDTO model)
         {
-
-
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-
             var rToken = _jwt.ValidarToken(identity);
 
             if (!rToken.succes) return rToken;
 
             User usuario = rToken.result;
 
-
             var nuevaEntrada = new DIarioEntrada
             {
-
                 EstadoAnimo = model.EstadoAnimo,
                 Descripcion = model.Descripcion,
                 Etiquetas = model.Etiquetas,
@@ -48,7 +43,7 @@ namespace EmocionesApi.Controllers
             };
 
             _context.DiarioUser.Add(nuevaEntrada);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync(); 
 
             return Ok(new
             {
@@ -64,7 +59,7 @@ namespace EmocionesApi.Controllers
 
         [HttpPut("actualizar/{id}")]
         [Authorize]
-        public IActionResult UpdateDiarioDescription(Guid id, [FromBody] editEntradaDTO model)
+        public async Task<IActionResult> UpdateDiarioDescription(Guid id, [FromBody] editEntradaDTO model)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             var rToken = _jwt.ValidarToken(identity);
@@ -73,8 +68,8 @@ namespace EmocionesApi.Controllers
 
             User usuario = rToken.result;
 
-            var entradaExistente = _context.DiarioUser
-                .FirstOrDefault(e => e.Id == id && e.UsuarioId == usuario.Id);
+            var entradaExistente = await _context.DiarioUser
+                .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == usuario.Id);
 
             if (entradaExistente == null)
             {
@@ -84,7 +79,7 @@ namespace EmocionesApi.Controllers
             entradaExistente.Descripcion = model.Descripcion;
 
             _context.DiarioUser.Update(entradaExistente);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
@@ -101,7 +96,7 @@ namespace EmocionesApi.Controllers
 
         [HttpDelete("eliminar/{id}")]
         [Authorize]
-        public IActionResult EliminarEntrada(Guid id)
+        public async Task<IActionResult> EliminarEntrada(Guid id)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             var rToken = _jwt.ValidarToken(identity);
@@ -110,8 +105,8 @@ namespace EmocionesApi.Controllers
 
             User usuario = rToken.result;
 
-            var entrada = _context.DiarioUser
-                .FirstOrDefault(e => e.Id == id && e.UsuarioId == usuario.Id);
+            var entrada = await _context.DiarioUser
+                .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == usuario.Id);
 
             if (entrada == null)
             {
@@ -119,7 +114,7 @@ namespace EmocionesApi.Controllers
             }
 
             _context.DiarioUser.Remove(entrada);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Entrada eliminada exitosamente" });
         }
